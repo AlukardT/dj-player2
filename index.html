@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>DJ Player</title>
+
+<style>
+body {
+  background: #0f0f0f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.eq-bar {
+  width: 5px;
+  background: linear-gradient(to top, transparent, #78AFA4 10%, #78AFA4 90%, transparent);
+  border-radius: 2px;
+  transition: height 0.05s linear;
+}
+
+#equalizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  min-height: 60px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <audio id="audio" src="https://files.catbox.moe/ga8he0.mp3" crossorigin="anonymous"></audio>
+
+  <button id="btn" style="background:none;border:none;cursor:pointer;">
+    <img id="img" src="https://i.postimg.cc/kgPF0d89/play.png" width="70">
+  </button>
+
+  <div id="equalizer"></div>
+
+</div>
+
+<script>
+const audio = document.getElementById('audio');
+const btn = document.getElementById('btn');
+const img = document.getElementById('img');
+const eq = document.getElementById('equalizer');
+
+const playSrc = "https://i.postimg.cc/kgPF0d89/play.png";
+const pauseSrc = "https://i.postimg.cc/fWFvvdT1/pause.png";
+
+const BAR_COUNT = 40;
+let bars = [];
+
+for (let i = 0; i < BAR_COUNT; i++) {
+  const bar = document.createElement('div');
+  bar.className = 'eq-bar';
+  bar.style.height = '4px';
+  eq.appendChild(bar);
+  bars.push(bar);
+}
+
+let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let analyser = audioCtx.createAnalyser();
+let source = audioCtx.createMediaElementSource(audio);
+
+source.connect(analyser);
+analyser.connect(audioCtx.destination);
+
+analyser.fftSize = 256;
+const data = new Uint8Array(analyser.frequencyBinCount);
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  analyser.getByteFrequencyData(data);
+
+  for (let i = 0; i < BAR_COUNT; i++) {
+    let val = data[i];
+    let h = 4 + (val / 255) * 50;
+    bars[i].style.height = h + 'px';
+  }
+}
+
+animate();
+
+btn.onclick = async () => {
+  if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+  if (audio.paused) {
+    await audio.play();
+    img.src = pauseSrc;
+  } else {
+    audio.pause();
+    img.src = playSrc;
+  }
+};
+
+audio.onended = () => {
+  img.src = playSrc;
+};
+</script>
+
+</body>
+</html>
