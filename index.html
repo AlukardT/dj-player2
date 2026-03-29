@@ -96,17 +96,28 @@ function animate() {
 
 animate();
 
-btn.onclick = async () => {
-  if (audioCtx.state === 'suspended') await audioCtx.resume();
-
-  if (audio.paused) {
-    await audio.play();
-    img.src = pauseSrc;
-  } else {
-    audio.pause();
-    img.src = playSrc;
+btn.addEventListener('click', async () => {
+  // Обязательно возобновляем контекст на мобильных
+  if (audioCtx.state === 'suspended') {
+    try {
+      await audioCtx.resume();
+    } catch(e) {
+      console.log("AudioContext resume failed", e);
+    }
   }
-};
+
+  try {
+    if (audio.paused) {
+      await audio.play();
+      img.src = pauseSrc;
+    } else {
+      audio.pause();
+      img.src = playSrc;
+    }
+  } catch(e) {
+    console.log("Audio play failed", e);
+  }
+});
 
 audio.onended = () => {
   img.src = playSrc;
