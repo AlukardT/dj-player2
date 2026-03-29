@@ -4,62 +4,48 @@
 <meta charset="UTF-8">
 <title>DJ Player</title>
 <style>
-/* Базовый фон */
 body {
-  background: #0f0f0f !important;
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  height: 100vh !important;
-  margin: 0 !important;
-  font-family: sans-serif !important;
+  background: #0f0f0f;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  font-family: sans-serif;
 }
-
-/* Контейнер */
 .container {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 0 !important; /* полностью убираем отступы между элементами */
-  margin: 0 !important;
-  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px; /* уменьшили отступ между кнопкой и эквалайзером */
+  margin: 0; /* убрали внешние отступы */
+  padding: 0; /* убрали внутренние отступы */
 }
-
-/* Кнопка play/pause */
-button {
-  background: none !important;
-  border: none !important;
-  cursor: pointer !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-/* Эквалайзер */
-#equalizer {
-  display: flex !important;
-  align-items: flex-end !important;
-  gap: 3px !important;
-  min-height: 60px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
 .eq-bar {
-  width: 5px !important;
-  background: linear-gradient(to top, transparent, #78AFA4 10%, #78AFA4 90%, transparent) !important;
-  border-radius: 2px !important;
-  transition: height 0.05s linear !important;
+  width: 5px;
+  background: linear-gradient(to top, transparent, #78AFA4 10%, #78AFA4 90%, transparent);
+  border-radius: 2px;
+  transition: height 0.05s linear;
 }
-
-/* Принудительно убираем любые надписи Taplink в блоке */
-.container p, .container * {
-  margin: 0 !important;
-  padding: 0 !important;
-  display: none !important;
+#equalizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  min-height: 60px;
+  margin: 0; /* убрали отступы */
+  padding: 0;
+}
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
 }
 </style>
 </head>
 <body>
+
 <div class="container">
   <audio id="audio" src="https://raw.githubusercontent.com/AlukardT/dj-player2/refs/heads/main/track.mp3" crossorigin="anonymous" playsinline></audio>
   <button id="btn">
