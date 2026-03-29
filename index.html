@@ -11,6 +11,7 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
+  font-family: sans-serif;
 }
 .container {
   display: flex;
@@ -30,16 +31,27 @@ body {
   gap: 3px;
   min-height: 60px;
 }
+p.info {
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+}
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
 </style>
 </head>
 <body>
+
 <div class="container">
   <audio id="audio" src="https://files.catbox.moe/ga8he0.mp3" crossorigin="anonymous"></audio>
-  <button id="btn" style="background:none;border:none;cursor:pointer;">
+  <button id="btn">
     <img id="img" src="https://i.postimg.cc/kgPF0d89/play.png" width="70">
   </button>
   <div id="equalizer"></div>
-  <p style="color:#fff;font-size:12px;">На мобильных нажмите кнопку play для включения звука</p>
+  <p class="info">Нажмите кнопку play для включения звука на мобильных</p>
 </div>
 
 <script>
@@ -61,31 +73,38 @@ for (let i = 0; i < BAR_COUNT; i++) {
   bars.push(bar);
 }
 
-let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let analyser = audioCtx.createAnalyser();
-let source = audioCtx.createMediaElementSource(audio);
+let audioCtx = null;
+let analyser = null;
+let source = null;
 
-source.connect(analyser);
-analyser.connect(audioCtx.destination);
-
-analyser.fftSize = 256;
-const data = new Uint8Array(analyser.frequencyBinCount);
-
-function animate() {
-  requestAnimationFrame(animate);
-  analyser.getByteFrequencyData(data);
-  for (let i = 0; i < BAR_COUNT; i++) {
-    let val = data[i];
-    let h = 4 + (val / 255) * 50;
-    bars[i].style.height = h + 'px';
-  }
-}
-
-animate();
-
+// Обработчик кнопки play/pause
 btn.addEventListener('click', async () => {
-  if (audioCtx.state === 'suspended') await audioCtx.resume();
   try {
+    // Создаём AudioContext только после первого клика
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser();
+      source = audioCtx.createMediaElementSource(audio);
+      source.connect(analyser);
+      analyser.connect(audioCtx.destination);
+      analyser.fftSize = 256;
+      const data = new Uint8Array(analyser.frequencyBinCount);
+
+      // Анимация эквалайзера
+      function animate() {
+        requestAnimationFrame(animate);
+        analyser.getByteFrequencyData(data);
+        for (let i = 0; i < BAR_COUNT; i++) {
+          let val = data[i];
+          let h = 4 + (val / 255) * 50;
+          bars[i].style.height = h + 'px';
+        }
+      }
+      animate();
+    }
+
+    if (audioCtx.state === 'suspended') await audioCtx.resume();
+
     if (audio.paused) {
       await audio.play();
       img.src = pauseSrc;
@@ -93,12 +112,14 @@ btn.addEventListener('click', async () => {
       audio.pause();
       img.src = playSrc;
     }
-  } catch(e) {
+  } catch (e) {
     console.log("Play failed:", e);
   }
 });
 
+// Сброс кнопки при окончании трека
 audio.onended = () => { img.src = playSrc; };
 </script>
+
 </body>
 </html>
