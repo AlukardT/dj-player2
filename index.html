@@ -21,7 +21,7 @@ body {
 }
 .eq-bar {
   width: 5px;
-  background: linear-gradient(to top, transparent, #78AFA4 10%, #78AFA4 90%, transparent);
+  background: linear-gradient(to top, transparent, #78AFA4, transparent);
   border-radius: 2px;
   transition: height 0.05s linear;
 }
@@ -30,11 +30,6 @@ body {
   align-items: flex-end;
   gap: 3px;
   min-height: 60px;
-}
-p.info {
-  color: #fff;
-  font-size: 12px;
-  text-align: center;
 }
 button {
   background: none;
@@ -46,12 +41,11 @@ button {
 <body>
 
 <div class="container">
-  <audio id="audio" src="https://dl.dropboxusercontent.com/s/2ui1cj8vt9pc2ppvjllw8/Alex-blond-Stop-Night-final-mix.mp3" crossorigin="anonymous"></audio>
+  <audio id="audio" src="https://raw.githubusercontent.com/ТВОЙ_НИК/dj-player/main/Alex-blond-Stop-Night-final-mix.mp3" crossorigin="anonymous"></audio>
   <button id="btn">
     <img id="img" src="https://i.postimg.cc/kgPF0d89/play.png" width="70">
   </button>
   <div id="equalizer"></div>
-  <p class="info">Нажмите кнопку play для включения звука на мобильных</p>
 </div>
 
 <script>
@@ -65,6 +59,7 @@ const pauseSrc = "https://i.postimg.cc/fWFvvdT1/pause.png";
 const BAR_COUNT = 40;
 let bars = [];
 
+// создаём полоски эквалайзера
 for (let i = 0; i < BAR_COUNT; i++) {
   const bar = document.createElement('div');
   bar.className = 'eq-bar';
@@ -76,48 +71,40 @@ for (let i = 0; i < BAR_COUNT; i++) {
 let audioCtx = null;
 let analyser = null;
 let source = null;
+let dataArray = null;
 
-// Обработчик кнопки play/pause
-btn.addEventListener('click', async () => {
-  try {
-    // Создаём AudioContext только после первого клика
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      analyser = audioCtx.createAnalyser();
-      source = audioCtx.createMediaElementSource(audio);
-      source.connect(analyser);
-      analyser.connect(audioCtx.destination);
-      analyser.fftSize = 256;
-      const data = new Uint8Array(analyser.frequencyBinCount);
+// событие на кнопку
+btn.onclick = function() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    source = audioCtx.createMediaElementSource(audio);
+    analyser = audioCtx.createAnalyser();
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    analyser.fftSize = 256;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-      // Анимация эквалайзера
-      function animate() {
-        requestAnimationFrame(animate);
-        analyser.getByteFrequencyData(data);
-        for (let i = 0; i < BAR_COUNT; i++) {
-          let val = data[i];
-          let h = 4 + (val / 255) * 50;
-          bars[i].style.height = h + 'px';
-        }
+    function animate() {
+      requestAnimationFrame(animate);
+      analyser.getByteFrequencyData(dataArray);
+      for (let i = 0; i < BAR_COUNT; i++) {
+        bars[i].style.height = (4 + (dataArray[i]/255)*50) + "px";
       }
-      animate();
     }
-
-    if (audioCtx.state === 'suspended') await audioCtx.resume();
-
-    if (audio.paused) {
-      await audio.play();
-      img.src = pauseSrc;
-    } else {
-      audio.pause();
-      img.src = playSrc;
-    }
-  } catch (e) {
-    console.log("Play failed:", e);
+    animate();
   }
-});
 
-// Сброс кнопки при окончании трека
+  // play/pause
+  if (audio.paused) {
+    audio.play();
+    audioCtx.resume();
+    img.src = pauseSrc;
+  } else {
+    audio.pause();
+    img.src = playSrc;
+  }
+}
+
 audio.onended = () => { img.src = playSrc; };
 </script>
 
