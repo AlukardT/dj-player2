@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>DJ Player</title>
-
 <style>
 body {
   background: #0f0f0f;
@@ -13,21 +12,18 @@ body {
   height: 100vh;
   margin: 0;
 }
-
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
 }
-
 .eq-bar {
   width: 5px;
   background: linear-gradient(to top, transparent, #78AFA4 10%, #78AFA4 90%, transparent);
   border-radius: 2px;
   transition: height 0.05s linear;
 }
-
 #equalizer {
   display: flex;
   align-items: flex-end;
@@ -35,21 +31,15 @@ body {
   min-height: 60px;
 }
 </style>
-
 </head>
-
 <body>
-
 <div class="container">
-
   <audio id="audio" src="https://files.catbox.moe/ga8he0.mp3" crossorigin="anonymous"></audio>
-
   <button id="btn" style="background:none;border:none;cursor:pointer;">
     <img id="img" src="https://i.postimg.cc/kgPF0d89/play.png" width="70">
   </button>
-
   <div id="equalizer"></div>
-
+  <p style="color:#fff;font-size:12px;">На мобильных нажмите кнопку play для включения звука</p>
 </div>
 
 <script>
@@ -57,7 +47,6 @@ const audio = document.getElementById('audio');
 const btn = document.getElementById('btn');
 const img = document.getElementById('img');
 const eq = document.getElementById('equalizer');
-
 const playSrc = "https://i.postimg.cc/kgPF0d89/play.png";
 const pauseSrc = "https://i.postimg.cc/fWFvvdT1/pause.png";
 
@@ -84,9 +73,7 @@ const data = new Uint8Array(analyser.frequencyBinCount);
 
 function animate() {
   requestAnimationFrame(animate);
-
   analyser.getByteFrequencyData(data);
-
   for (let i = 0; i < BAR_COUNT; i++) {
     let val = data[i];
     let h = 4 + (val / 255) * 50;
@@ -97,15 +84,7 @@ function animate() {
 animate();
 
 btn.addEventListener('click', async () => {
-  // Обязательно возобновляем контекст на мобильных
-  if (audioCtx.state === 'suspended') {
-    try {
-      await audioCtx.resume();
-    } catch(e) {
-      console.log("AudioContext resume failed", e);
-    }
-  }
-
+  if (audioCtx.state === 'suspended') await audioCtx.resume();
   try {
     if (audio.paused) {
       await audio.play();
@@ -115,14 +94,11 @@ btn.addEventListener('click', async () => {
       img.src = playSrc;
     }
   } catch(e) {
-    console.log("Audio play failed", e);
+    console.log("Play failed:", e);
   }
 });
 
-audio.onended = () => {
-  img.src = playSrc;
-};
+audio.onended = () => { img.src = playSrc; };
 </script>
-
 </body>
 </html>
