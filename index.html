@@ -5,19 +5,20 @@
 <title>DJ Player</title>
 <style>
 body {
-  background: #0f0f0f;
+  background: #020306;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   margin: 0;
+  padding: 0;
   font-family: sans-serif;
 }
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 6px;
   margin: 0;
   padding: 0;
 }
@@ -56,7 +57,7 @@ body {
 .control-svg path,
 .control-svg rect {
   fill: none;
-  stroke: #8bc9bd; /* чуть светлее, чтобы визуально линии были тоньше */
+  stroke: #6EB4D2;
   stroke-width: 0.5;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -71,24 +72,21 @@ body {
 }
 .eq-bar {
   width: 5px;
-  background: linear-gradient(to top, transparent, #78AFA4 10%, #78AFA4 90%, transparent);
-  border-radius: 2px;
+  background: linear-gradient(to top, transparent, #6EB4D2 15%, #6EB4D2 85%, transparent);
+  border-radius: 2px 2px 0 0;
   transition: height 0.05s linear;
 }
 </style>
 </head>
 <body>
-
 <div class="container">
   <audio id="audio" preload="auto" crossorigin="anonymous" playsinline></audio>
   <div class="player-controls">
-    <!-- Prev: треугольник влево -->
     <button class="control-btn small" id="prevBtn">
       <svg class="control-svg" viewBox="0 0 24 24">
         <path d="M15 6 L7 12 L15 18 Z" />
       </svg>
     </button>
-    <!-- Play/Pause -->
     <button class="control-btn" id="playPauseBtn">
       <svg class="control-svg" id="playIcon" viewBox="0 0 24 24">
         <path d="M9 6 L19 12 L9 18 Z" />
@@ -98,7 +96,6 @@ body {
         <rect x="13" y="6" width="3" height="12" />
       </svg>
     </button>
-    <!-- Next: треугольник вправо -->
     <button class="control-btn small" id="nextBtn">
       <svg class="control-svg" viewBox="0 0 24 24">
         <path d="M9 6 L17 12 L9 18 Z" />
@@ -109,9 +106,9 @@ body {
 </div>
 
 <script>
-// ==== Настройка треков ====
 const tracks = [
-  { name: "Track 1", url: "https://raw.githubusercontent.com/AlukardT/dj-player2/refs/heads/main/track.mp3" },
+  { name: "Track 1", url: "https://raw.githubusercontent.com/AlukardT/dj-player2/refs/heads/main/track.mp3" }
+  // При добавлении второго трека раскомментируйте следующую строку:
   // { name: "Track 2", url: "https://raw.githubusercontent.com/AlukardT/dj-player2/refs/heads/main/track2.mp3" }
 ];
 let currentTrackIndex = 0;
@@ -124,7 +121,6 @@ const playIcon = document.getElementById('playIcon');
 const pauseIcon = document.getElementById('pauseIcon');
 const eq = document.getElementById('equalizer');
 
-// ==== Эквалайзер ====
 const BAR_COUNT = 40;
 let bars = [];
 for (let i = 0; i < BAR_COUNT; i++) {
@@ -139,10 +135,66 @@ let audioCtx = null;
 let analyser = null;
 let source = null;
 let animationId = null;
+let isPlaying = false;
 
-function stopAnimation() {
-  if (animationId) cancelAnimationFrame(animationId);
+// Пирамидальные веса
+const pyramidWeights = Array.from({ length: BAR_COUNT }, (_, i) => {
+  const center = BAR_COUNT / 2;
+  const distance = Math.abs(i - center) / center;
+  return 1 - distance * 0.6;
+});
+
+function resetBars() {
   bars.forEach(bar => bar.style.height = '4px');
+}
+
+function getFrequencyIndices(fftSize, barCount) {
+  const nyquist = fftSize / 2;
+  const indices = [];
+  for (let i = 0; i <= barCount; i++) {
+    const logMin = Math.log(1);
+    const logMax = Math.log(nyquist);
+    const logVal = logMin + (i / barCount) * (logMax - logMin);
+    let idx = Math.floor(Math.exp(logVal));
+    idx = Math.min(idx, nyquist - 1);
+    indices.push(idx);
+  }
+  const ranges = [];
+  for (let i = 0; i < barCount; i++) {
+    ranges.push([indices[i], indices[i+1]]);
+  }
+  return ranges;
+}
+
+let freqRanges = [];
+
+function updateBarsContinuously() {
+  if (!analyser) return;
+  const bufferLength = analyser.frequencyBinCount;
+  if (freqRanges.length === 0) {
+    freqRanges = getFrequencyIndices(bufferLength, BAR_COUNT);
+  }
+  const data = new Uint8Array(bufferLength);
+  function animate() {
+    if (isPlaying && analyser) {
+      analyser.getByteFrequencyData(data);
+      for (let i = 0; i < BAR_COUNT; i++) {
+        const [start, end] = freqRanges[i];
+        let sum = 0;
+        let count = 0;
+        for (let j = start; j <= end && j < bufferLength; j++) {
+          sum += data[j] || 0;
+          count++;
+        }
+        let avg = count ? sum / count : 0;
+        let height = 4 + (avg / 255) * 50 * pyramidWeights[i];
+        height = Math.min(54, Math.max(4, height));
+        bars[i].style.height = height + 'px';
+      }
+    }
+    animationId = requestAnimationFrame(animate);
+  }
+  animate();
 }
 
 async function initAudioContext() {
@@ -150,21 +202,10 @@ async function initAudioContext() {
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   analyser = audioCtx.createAnalyser();
   analyser.fftSize = 256;
-  const data = new Uint8Array(analyser.frequencyBinCount);
   source = audioCtx.createMediaElementSource(audio);
   source.connect(analyser);
   analyser.connect(audioCtx.destination);
-  function animate() {
-    if (!analyser) return;
-    analyser.getByteFrequencyData(data);
-    for (let i = 0; i < BAR_COUNT; i++) {
-      let val = data[i];
-      let h = 4 + (val / 255) * 50;
-      bars[i].style.height = h + 'px';
-    }
-    animationId = requestAnimationFrame(animate);
-  }
-  animate();
+  updateBarsContinuously();
 }
 
 async function loadTrack(index) {
@@ -176,11 +217,14 @@ async function loadTrack(index) {
     try { source.disconnect(); } catch(e) {}
     source = null;
   }
+  isPlaying = false;
+  resetBars();
   if (wasPlaying) {
     try {
       if (!audioCtx) await initAudioContext();
       if (audioCtx.state === 'suspended') await audioCtx.resume();
       await audio.play();
+      isPlaying = true;
       playIcon.style.display = 'none';
       pauseIcon.style.display = 'block';
     } catch(e) {
@@ -191,16 +235,15 @@ async function loadTrack(index) {
     playIcon.style.display = 'block';
     pauseIcon.style.display = 'none';
   }
-  stopAnimation();
 }
 
 function prevTrack() {
-  if (tracks.length === 0) return;
+  if (tracks.length <= 1) return; // ничего не делаем, если треков 1 или 0
   currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
   loadTrack(currentTrackIndex);
 }
 function nextTrack() {
-  if (tracks.length === 0) return;
+  if (tracks.length <= 1) return; // ничего не делаем, если треков 1 или 0
   currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
   loadTrack(currentTrackIndex);
 }
@@ -217,13 +260,15 @@ async function togglePlayPause() {
         });
       }
       await audio.play();
+      isPlaying = true;
       playIcon.style.display = 'none';
       pauseIcon.style.display = 'block';
     } else {
       audio.pause();
+      isPlaying = false;
       playIcon.style.display = 'block';
       pauseIcon.style.display = 'none';
-      stopAnimation();
+      resetBars();
     }
   } catch (e) {
     console.warn("Play/pause error:", e);
@@ -232,9 +277,10 @@ async function togglePlayPause() {
 }
 
 audio.addEventListener('ended', () => {
+  isPlaying = false;
   playIcon.style.display = 'block';
   pauseIcon.style.display = 'none';
-  stopAnimation();
+  resetBars();
 });
 
 playPauseBtn.addEventListener('click', togglePlayPause);
