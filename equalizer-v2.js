@@ -1,27 +1,40 @@
 window.addEventListener('DOMContentLoaded', () => {
-  window.animate = function animateBottomEqualizer() {
-    const data = new Uint8Array(analyser.frequencyBinCount);
-    const smoothed = new Array(bars.length).fill(3);
+  const levels = new Array(54).fill(0.02);
 
-    const draw = () => {
-      if (!audio.paused) {
-        analyser.getByteFrequencyData(data);
-        bars.forEach((bar, i) => {
-          const position = i / Math.max(1, bars.length - 1);
-          const start = Math.floor(Math.pow(position, 1.7) * data.length * 0.72);
-          const width = Math.max(2, Math.floor(data.length / bars.length) + 1);
-          const end = Math.min(data.length, start + width);
-          let total = 0;
-          for (let j = start; j < end; j += 1) total += data[j];
-          const average = total / Math.max(1, end - start);
-          const compensation = 1 + position * 0.58;
-          const target = Math.max(3, 3 + average / 255 * 132 * compensation);
-          smoothed[i] += (target - smoothed[i]) * (target > smoothed[i] ? 0.38 : 0.18);
-          bar.style.height = `${Math.min(140, smoothed[i])}px`;
-        });
+  const drawSymmetricEqualizer = () => {
+    const available = typeof analyser !== 'undefined' && analyser && typeof audio !== 'undefined';
+    const playing = available && !audio.paused;
+
+    if (playing) {
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(data);
+      const count = bars.length;
+      const half = Math.ceil(count / 2);
+
+      for (let i = 0; i < half; i += 1) {
+        const position = i / Math.max(1, half - 1);
+        const start = Math.floor(Math.pow(position, 1.7) * data.length * 0.72);
+        const end = Math.min(data.length, start + 4);
+        let total = 0;
+        for (let j = start; j < end; j += 1) total += data[j];
+        const average = total / Math.max(1, end - start);
+        const target = Math.max(0.025, average / 255 * (1 - position * 0.16));
+        const left = half - 1 - i;
+        const right = count - half + i;
+        const current = levels[left] || 0.02;
+        const value = current + (target - current) * (target > current ? 0.42 : 0.20);
+        levels[left] = value;
+        levels[right] = value;
       }
-      requestAnimationFrame(draw);
-    };
-    draw();
+    } else {
+      for (let i = 0; i < levels.length; i += 1) levels[i] += (0.02 - levels[i]) * 0.18;
+    }
+
+    if (typeof bars !== 'undefined') {
+      bars.forEach((bar, i) => { bar.style.transform = `scaleY(${levels[i] || 0.02})`; });
+    }
+    requestAnimationFrame(drawSymmetricEqualizer);
   };
+
+  requestAnimationFrame(drawSymmetricEqualizer);
 });
