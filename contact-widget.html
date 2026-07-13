@@ -8,21 +8,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
   <style>
-    @font-face {
-      font-family: "Micra Normal";
-      src: url("micra-cyrillic.woff") format("woff");
-      font-weight: 400;
-      font-style: normal;
-      font-display: swap;
-    }
-
     .contact-widget,
     .contact-widget * { box-sizing: border-box; }
 
     .contact-widget {
       position: relative;
       width: 100%;
-      min-height: 78px;
+      min-height: 87px;
       padding: 6px 8px;
       font-family: "Montserrat", Arial, sans-serif;
       transition: min-height .28s ease;
@@ -34,14 +26,14 @@
       position: relative;
       display: block;
       width: min(100%, 500px);
-      min-height: 66px;
+      min-height: 0;
       margin: 0 auto;
       overflow: hidden;
       padding: 0;
       border: 0;
       border-radius: 999px;
       color: #020306;
-      background: #64aaf4;
+      background: transparent;
       box-shadow: none;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
@@ -51,16 +43,23 @@
     .contact-open__fallback {
       position: absolute;
       inset: 0;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
       padding: 10px 18px;
-      font-family: "Micra Normal", Arial, sans-serif;
+      font-family: Arial, sans-serif;
       font-size: clamp(14px, 4.5vw, 22px);
       line-height: 1;
       letter-spacing: .02em;
       text-align: center;
       text-transform: uppercase;
+    }
+
+    .contact-open__image {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 0;
     }
 
     .contact-open::after {
@@ -193,7 +192,7 @@
 
     .contact-action__icon svg { width: 32px; height: 32px; }
     .contact-action__copy { min-width: 0; }
-    .contact-action__name { display: block; font-family:"Micra Normal",Arial,sans-serif; font-size:clamp(10px,3.15vw,14px); font-weight:400; line-height:1.15; text-align:center; text-transform:uppercase; }
+    .contact-action__name { display: block; font-family:"Montserrat",Arial,sans-serif; font-size:clamp(12px,3.5vw,16px); font-weight:600; line-height:1.15; text-align:center; text-transform:uppercase; }
     .contact-action__value { display: none; }
     .contact-action__arrow { color: #72cefa; font-size: 26px; text-align: center; }
 
@@ -220,6 +219,7 @@
   <div class="contact-widget">
     <button class="contact-open" id="contactOpen" type="button" aria-haspopup="dialog" aria-controls="contactModal">
       <span class="contact-open__fallback">Связаться со мной</span>
+      <img class="contact-open__image" src="contact-button-micra.png" alt="Связаться со мной">
     </button>
 
     <div class="contact-modal" id="contactModal" role="dialog" aria-modal="true" aria-label="Выберите способ связи" hidden>
@@ -268,14 +268,14 @@
         widget.classList.remove('is-open');
         window.setTimeout(() => { modal.hidden = true; }, 260);
         openButton.focus();
-        notifyHeight(82);
+        notifyHeight(87);
       };
 
       openButton.addEventListener('click', openModal);
       closeButton.addEventListener('click', closeModal);
       modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
       document.addEventListener('keydown', event => { if (event.key === 'Escape' && !modal.hidden) closeModal(); });
-      notifyHeight(82);
+      notifyHeight(87);
     })();
   </script>
 </body>
