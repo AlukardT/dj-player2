@@ -31,11 +31,13 @@
       margin: 0 auto;
       overflow: hidden;
       padding: 0;
-      border: 0;
+      border: 1px solid rgba(170, 232, 255, .82);
       border-radius: 999px;
-      color: #020306;
-      background: transparent;
-      box-shadow: 0 8px 26px rgba(42, 157, 255, .3), 0 0 18px rgba(112, 207, 255, .2);
+      color: #fff;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.20), transparent 44%),
+        linear-gradient(105deg, #3cc8f2 0%, #388be8 52%, #4b70e5 100%);
+      box-shadow: 0 10px 30px rgba(39, 154, 255, .38), 0 0 24px rgba(91, 205, 255, .24);
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
@@ -79,7 +81,10 @@
     }
 
     .contact-open:hover::after { left: 112%; }
-    .contact-open:hover { filter: brightness(1.1) saturate(1.08); }
+    .contact-open:hover {
+      filter: brightness(1.08) saturate(1.06);
+      box-shadow: 0 12px 34px rgba(39, 154, 255, .48), 0 0 30px rgba(91, 205, 255, .32);
+    }
     .contact-open:active { transform: scale(.975); }
     .contact-open:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
 
@@ -223,7 +228,7 @@
   <div class="contact-widget">
     <button class="contact-open" id="contactOpen" type="button" aria-haspopup="dialog" aria-controls="contactModal">
       <span class="contact-open__fallback">Связаться со мной</span>
-      <img class="contact-open__image" src="contact-button-micra.png" alt="Связаться со мной">
+      <img class="contact-open__image" src="contact-button-micra.png?v=20260714-2" alt="Связаться со мной">
     </button>
 
     <div class="contact-modal" id="contactModal" role="dialog" aria-modal="true" aria-label="Выберите способ связи" hidden>
@@ -261,7 +266,7 @@
       const image = openButton.querySelector('.contact-open__image');
       const widgetMode = new URLSearchParams(window.location.search).get('mode') === 'dates' ? 'dates' : 'contact';
       if (widgetMode === 'dates') {
-        image.src = 'dates-button-micra.png';
+        image.src = 'dates-button-micra.png?v=20260714-2';
         image.alt = 'Узнать свободные даты';
       }
       const notifyHeight = height => window.parent.postMessage({ type: 'alex-contact-height', mode: widgetMode, height }, '*');
