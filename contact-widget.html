@@ -14,8 +14,8 @@
     .contact-widget {
       position: relative;
       width: 100%;
-      min-height: 87px;
-      padding: 6px 8px;
+      min-height: 92px;
+      padding: 6px 0;
       font-family: "Montserrat", Arial, sans-serif;
       transition: min-height .28s ease;
     }
@@ -25,9 +25,9 @@
     .contact-open {
       position: relative;
       display: block;
-      width: min(100%, 500px);
+      width: min(100%, 620px);
+      height: clamp(62px, 12.9vw, 80px);
       min-height: 0;
-      aspect-ratio: 1400 / 210;
       margin: 0 auto;
       overflow: hidden;
       padding: 0;
@@ -35,7 +35,7 @@
       border-radius: 999px;
       color: #020306;
       background: transparent;
-      box-shadow: none;
+      box-shadow: 0 8px 26px rgba(42, 157, 255, .3), 0 0 18px rgba(112, 207, 255, .2);
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
@@ -79,7 +79,7 @@
     }
 
     .contact-open:hover::after { left: 112%; }
-    .contact-open:hover { filter: brightness(1.08); }
+    .contact-open:hover { filter: brightness(1.1) saturate(1.08); }
     .contact-open:active { transform: scale(.975); }
     .contact-open:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
 
@@ -258,7 +258,13 @@
       const widget = openButton.closest('.contact-widget');
       const modal = document.getElementById('contactModal');
       const closeButton = document.getElementById('contactClose');
-      const notifyHeight = height => window.parent.postMessage({ type: 'alex-contact-height', height }, '*');
+      const image = openButton.querySelector('.contact-open__image');
+      const widgetMode = new URLSearchParams(window.location.search).get('mode') === 'dates' ? 'dates' : 'contact';
+      if (widgetMode === 'dates') {
+        image.src = 'dates-button-micra.png';
+        image.alt = 'Узнать свободные даты';
+      }
+      const notifyHeight = height => window.parent.postMessage({ type: 'alex-contact-height', mode: widgetMode, height }, '*');
 
       const openModal = () => {
         modal.hidden = false;
@@ -272,14 +278,14 @@
         widget.classList.remove('is-open');
         window.setTimeout(() => { modal.hidden = true; }, 260);
         openButton.focus();
-        notifyHeight(87);
+        notifyHeight(92);
       };
 
       openButton.addEventListener('click', openModal);
       closeButton.addEventListener('click', closeModal);
       modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
       document.addEventListener('keydown', event => { if (event.key === 'Escape' && !modal.hidden) closeModal(); });
-      notifyHeight(87);
+      notifyHeight(92);
     })();
   </script>
 </body>
