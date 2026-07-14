@@ -1,8 +1,477 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Alex Blond Player</title><script src="./equalizer-v2.js" defer></script>
-<style>:root{--violet:#72ddc1!important}.player{background:radial-gradient(circle at 50% 120%,rgba(42,118,116,.14),transparent 58%),linear-gradient(120deg,#04070b,#071015 55%,#030507)!important}.bar{background:linear-gradient(to top,rgba(103,200,255,.08),#63c9f4,rgba(114,221,193,.62))!important}</style>
-<style>.player{background:#05080c!important;box-shadow:0 9px 26px rgba(0,0,0,.42)!important}.control{color:#63c9f4!important}.previous,.next{width:50px!important;height:50px!important;opacity:1!important}.play{width:60px!important;height:60px!important}.controls{gap:42px!important;margin-bottom:22px!important}.number{display:none!important}.title{color:#8fd9f7!important}.visualizer{opacity:.20!important}@media(max-width:520px){.previous,.next{width:44px!important;height:44px!important}.play{width:54px!important;height:54px!important}.controls{gap:29px!important;margin-bottom:19px!important}}</style>
-<style>.player{border:2px solid rgba(103,200,255,.64)!important;box-shadow:0 0 0 1px rgba(103,200,255,.10),0 12px 32px rgba(0,0,0,.50),0 0 20px rgba(103,200,255,.19)!important}.visualizer{align-items:flex-end!important;padding:0 5px!important;opacity:.24!important;mask-image:linear-gradient(to right,transparent,#000 4%,#000 96%,transparent)!important}.bar{border-radius:5px 5px 0 0!important}.content{background:linear-gradient(90deg,rgba(2,3,6,.50),rgba(2,3,6,.12),rgba(2,3,6,.50))!important}</style>
-<style>.previous,.next{width:56px!important;height:56px!important}.play{width:68px!important;height:68px!important}.bar{height:100%!important;min-height:100%!important;transform:scaleY(.02);transform-origin:center bottom;will-change:transform;transition:transform .06s linear!important}@media(max-width:520px){.previous,.next{width:48px!important;height:48px!important}.play{width:60px!important;height:60px!important}}</style>
-<style>:root{color-scheme:dark;--cyan:#63c9f4;--ice:#b8e9ff;--violet:#9786ff}*{box-sizing:border-box}html,body{margin:0;background:#020306;font-family:Arial,sans-serif}body{padding:7px}.player{position:relative;width:100%;max-width:760px;min-height:142px;margin:auto;overflow:hidden;border:1px solid rgba(103,200,255,.30);border-radius:28px;background:radial-gradient(circle at 50% 120%,rgba(55,55,115,.20),transparent 58%),linear-gradient(120deg,#04070b,#070b12 55%,#030507);box-shadow:0 9px 30px rgba(0,0,0,.48),inset 0 0 35px rgba(103,200,255,.025)}.visualizer{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:3px;padding:0 7px;opacity:.17;pointer-events:none;mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent)}.bar{flex:1;max-width:9px;min-width:2px;min-height:3px;border-radius:8px;background:linear-gradient(to top,rgba(103,200,255,.08),var(--cyan),rgba(151,134,255,.65));box-shadow:0 0 8px rgba(103,200,255,.18);transition:height .06s linear}.content{position:relative;z-index:2;display:flex;min-height:142px;flex-direction:column;align-items:center;justify-content:center;padding:15px 18px 13px;background:linear-gradient(90deg,rgba(2,3,6,.53),rgba(2,3,6,.20),rgba(2,3,6,.53))}.controls{display:flex;align-items:center;justify-content:center;gap:39px;margin-bottom:13px}.control{display:grid;width:38px;height:38px;place-items:center;padding:0;border:0;background:transparent;cursor:pointer;filter:drop-shadow(0 0 7px rgba(103,200,255,.14));transition:transform .15s,filter .15s}.control:hover{transform:scale(1.08);filter:drop-shadow(0 0 8px currentColor)}.control:active{transform:scale(.92)}.control svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.15;stroke-linecap:round;stroke-linejoin:round}.previous{color:var(--cyan)}.play{width:45px;height:45px;color:var(--ice)}.next{color:var(--violet)}.title{max-width:92%;margin:0;color:#8fd9f7;font-size:15px;font-weight:400;line-height:1.3;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 0 12px rgba(103,200,255,.16)}.number{margin:6px 0 0;color:rgba(184,233,255,.42);font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase}@media(max-width:520px){body{padding:5px}.player,.content{min-height:132px}.player{border-radius:24px}.controls{gap:30px;margin-bottom:11px}.control{width:34px;height:34px}.play{width:41px;height:41px}.title{font-size:13px}.visualizer{gap:2px}}</style></head>
-<body><main class="player"><audio id="audio" preload="metadata" playsinline></audio><div class="visualizer" id="visualizer" aria-hidden="true"></div><div class="content"><div class="controls"><button class="control previous" id="previous" type="button" aria-label="Предыдущий трек"><svg viewBox="0 0 24 24"><path d="M16 5.5 7.5 12l8.5 6.5v-13Z"/></svg></button><button class="control play" id="play" type="button" aria-label="Воспроизвести"><svg id="icon" viewBox="0 0 24 24"><path d="m8 4.8 10.8 7.2L8 19.2V4.8Z"/></svg></button><button class="control next" id="next" type="button" aria-label="Следующий трек"><svg viewBox="0 0 24 24"><path d="m8 5.5 8.5 6.5L8 18.5v-13Z"/></svg></button></div><p class="title" id="title"></p><p class="number" id="number"></p></div></main>
-<script>const tracks=[{title:'DJ Alex Blond — Promo Mix',url:'./audio/mix-1.mp3'},{title:'Alex Blond — Warm Up Podcast #026',url:'./audio/mix-2.mp3'},{title:'ALEX BLOND — WELCOME Live Mix vol. 1',url:'./audio/mix-3.mp3'},{title:'ALEX BLOND — 2000 MINI MIX',url:'./audio/mix-4.mp3'},{title:'Alex Blond — Dance City Podcast #062 (Progressive)',url:'./audio/mix-5.mp3'}];const audio=document.getElementById('audio'),play=document.getElementById('play'),icon=document.getElementById('icon'),previous=document.getElementById('previous'),next=document.getElementById('next'),title=document.getElementById('title'),number=document.getElementById('number'),visualizer=document.getElementById('visualizer');let index=0,ctx,analyser,source;const bars=[];for(let i=0;i<54;i++){const b=document.createElement('i');b.className='bar';b.style.height='3px';visualizer.appendChild(b);bars.push(b)}const state=p=>{play.setAttribute('aria-label',p?'Пауза':'Воспроизвести');icon.innerHTML=p?'<path d="M8 5.5v13M16 5.5v13"></path>':'<path d="m8 4.8 10.8 7.2L8 19.2V4.8Z"></path>'};const reset=()=>bars.forEach(b=>b.style.height='3px');function load(i,auto=false){index=(i+tracks.length)%tracks.length;audio.src=tracks[index].url;audio.load();title.textContent=tracks[index].title;number.textContent=`${index+1} / ${tracks.length}`;state(false);reset();if(auto)audio.addEventListener('canplay',start,{once:true})}async function setup(){if(!ctx){ctx=new(window.AudioContext||window.webkitAudioContext)();analyser=ctx.createAnalyser();analyser.fftSize=256;source=ctx.createMediaElementSource(audio);source.connect(analyser);analyser.connect(ctx.destination);animate()}if(ctx.state==='suspended')await ctx.resume()}function animate(){const data=new Uint8Array(analyser.frequencyBinCount);const draw=()=>{if(!audio.paused){analyser.getByteFrequencyData(data);bars.forEach((b,i)=>{const a=Math.floor(i*data.length/bars.length),z=Math.floor((i+1)*data.length/bars.length);let n=0;for(let j=a;j<z;j++)n+=data[j];const avg=n/Math.max(1,z-a),edge=.58+.42*Math.sin(Math.PI*i/(bars.length-1));b.style.height=`${Math.max(3,3+avg/255*122*edge)}px`})}requestAnimationFrame(draw)};draw()}async function start(){try{await setup();await audio.play();state(true)}catch(e){state(false)}}play.onclick=()=>audio.paused?start():(audio.pause(),state(false),reset());previous.onclick=()=>load(index-1,!audio.paused);next.onclick=()=>load(index+1,!audio.paused);audio.onended=()=>load(index+1,true);audio.onplay=()=>state(true);audio.onpause=()=>{if(!audio.ended)state(false)};load(0);</script></body></html>
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#020306">
+  <title>Alex Blond Player</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --cyan: #63c9f4;
+      --ice: #b8e9ff;
+      --mint: #72ddc1;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      background: #020306;
+      font-family: Arial, sans-serif;
+    }
+
+    body { padding: 7px; }
+
+    .player {
+      position: relative;
+      width: 100%;
+      max-width: 760px;
+      min-height: 184px;
+      margin: auto;
+      overflow: hidden;
+      border: 2px solid rgba(103,200,255,.64);
+      border-radius: 28px;
+      background: #05080c;
+      box-shadow: 0 0 0 1px rgba(103,200,255,.10), 0 12px 32px rgba(0,0,0,.50), 0 0 20px rgba(103,200,255,.19);
+    }
+
+    .visualizer {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 3px;
+      padding: 0 5px;
+      opacity: .20;
+      pointer-events: none;
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
+      mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
+    }
+
+    .bar {
+      flex: 1;
+      width: auto;
+      max-width: 9px;
+      min-width: 2px;
+      height: 100%;
+      border-radius: 5px 5px 0 0;
+      background: linear-gradient(to top, rgba(103,200,255,.08), var(--cyan), rgba(114,221,193,.62));
+      box-shadow: 0 0 8px rgba(103,200,255,.18);
+      transform: scaleY(.02);
+      transform-origin: center bottom;
+      will-change: transform;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      min-height: 184px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 18px 13px;
+      background: linear-gradient(90deg, rgba(2,3,6,.50), rgba(2,3,6,.12), rgba(2,3,6,.50));
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 42px;
+      margin-bottom: 5px;
+    }
+
+    .control {
+      display: grid;
+      width: 56px;
+      height: 56px;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      color: var(--cyan);
+      background: transparent;
+      cursor: pointer;
+      filter: drop-shadow(0 0 7px rgba(103,200,255,.14));
+      transition: transform .15s ease, filter .15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .control:hover {
+      transform: scale(1.08);
+      filter: drop-shadow(0 0 8px currentColor);
+    }
+
+    .control:active { transform: scale(.92); }
+    .control:focus-visible { outline: 2px solid var(--ice); outline-offset: 2px; border-radius: 50%; }
+
+    .control svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.15;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .play {
+      width: 68px;
+      height: 68px;
+      color: var(--ice);
+    }
+
+    .next { color: var(--mint); }
+
+    .title {
+      max-width: 92%;
+      margin: 0 0 8px;
+      overflow: hidden;
+      color: #8fd9f7;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.25;
+      text-align: center;
+      text-overflow: ellipsis;
+      text-shadow: 0 0 12px rgba(103,200,255,.16);
+      white-space: nowrap;
+    }
+
+    .timeline {
+      display: grid;
+      width: min(92%, 650px);
+      grid-template-columns: 37px minmax(0, 1fr) 37px;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .time {
+      color: rgba(184,233,255,.68);
+      font-size: 9px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .seek {
+      width: 100%;
+      height: 20px;
+      margin: 0;
+      padding: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: pointer;
+      touch-action: pan-x;
+    }
+
+    .seek::-webkit-slider-runnable-track {
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(to right, var(--cyan) 0 var(--seek-progress, 0%), rgba(184,233,255,.20) var(--seek-progress, 0%) 100%);
+    }
+
+    .seek::-webkit-slider-thumb {
+      width: 13px;
+      height: 13px;
+      margin-top: -5px;
+      border: 1px solid rgba(255,255,255,.85);
+      border-radius: 50%;
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--cyan);
+      box-shadow: 0 0 9px rgba(99,201,244,.48);
+    }
+
+    .seek::-moz-range-track {
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(184,233,255,.20);
+    }
+
+    .seek::-moz-range-progress {
+      height: 3px;
+      border-radius: 999px;
+      background: var(--cyan);
+    }
+
+    .seek::-moz-range-thumb {
+      width: 13px;
+      height: 13px;
+      border: 1px solid rgba(255,255,255,.85);
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 9px rgba(99,201,244,.48);
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 5px; }
+      .player,
+      .content { min-height: 176px; }
+      .player { border-radius: 24px; }
+      .controls { gap: 29px; margin-bottom: 3px; }
+      .previous,
+      .next { width: 48px; height: 48px; }
+      .play { width: 60px; height: 60px; }
+      .title { margin-bottom: 7px; font-size: 12px; }
+      .timeline { width: 95%; grid-template-columns: 34px minmax(0,1fr) 34px; gap: 6px; }
+      .time { font-size: 8px; }
+      .visualizer { gap: 2px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .control { transition: none; }
+      .visualizer { opacity: .12; }
+    }
+  </style>
+</head>
+<body>
+  <main class="player" aria-label="Плеер миксов Alex Blond">
+    <audio id="audio" preload="metadata" playsinline></audio>
+    <div class="visualizer" id="visualizer" aria-hidden="true"></div>
+
+    <div class="content">
+      <div class="controls">
+        <button class="control previous" id="previous" type="button" aria-label="Предыдущий трек">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5.5 7.5 12l8.5 6.5v-13Z"></path></svg>
+        </button>
+
+        <button class="control play" id="play" type="button" aria-label="Воспроизвести">
+          <svg id="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 4.8 10.8 7.2L8 19.2V4.8Z"></path></svg>
+        </button>
+
+        <button class="control next" id="next" type="button" aria-label="Следующий трек">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5.5 8.5 6.5L8 18.5v-13Z"></path></svg>
+        </button>
+      </div>
+
+      <p class="title" id="title"></p>
+
+      <div class="timeline">
+        <span class="time" id="currentTime">0:00</span>
+        <input class="seek" id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Перемотка трека">
+        <span class="time" id="duration">0:00</span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const tracks = [
+        { title: 'DJ Alex Blond — Promo Mix', url: './audio/mix-1.mp3' },
+        { title: 'Alex Blond — Warm Up Podcast #026', url: './audio/mix-2.mp3' },
+        { title: 'ALEX BLOND — WELCOME Live Mix vol. 1', url: './audio/mix-3.mp3' },
+        { title: 'ALEX BLOND — 2000 MINI MIX', url: './audio/mix-4.mp3' },
+        { title: 'Alex Blond — Dance City Podcast #062 (Progressive)', url: './audio/mix-5.mp3' }
+      ];
+
+      const audio = document.getElementById('audio');
+      const playButton = document.getElementById('play');
+      const playIcon = document.getElementById('icon');
+      const previousButton = document.getElementById('previous');
+      const nextButton = document.getElementById('next');
+      const title = document.getElementById('title');
+      const seek = document.getElementById('seek');
+      const currentTime = document.getElementById('currentTime');
+      const duration = document.getElementById('duration');
+      const visualizer = document.getElementById('visualizer');
+
+      let index = 0;
+      let pendingPlay = false;
+      let lastPositionUpdate = 0;
+
+      const bars = [];
+      for (let i = 0; i < 54; i += 1) {
+        const bar = document.createElement('i');
+        bar.className = 'bar';
+        visualizer.appendChild(bar);
+        bars.push(bar);
+      }
+
+      function formatTime(value) {
+        if (!Number.isFinite(value) || value < 0) return '0:00';
+        const minutes = Math.floor(value / 60);
+        const seconds = Math.floor(value % 60).toString().padStart(2, '0');
+        return minutes + ':' + seconds;
+      }
+
+      function setPlaying(playing) {
+        playButton.setAttribute('aria-label', playing ? 'Пауза' : 'Воспроизвести');
+        playIcon.innerHTML = playing
+          ? '<path d="M8 5.5v13M16 5.5v13"></path>'
+          : '<path d="m8 4.8 10.8 7.2L8 19.2V4.8Z"></path>';
+      }
+
+      function updateTimeline() {
+        const length = Number.isFinite(audio.duration) ? audio.duration : 0;
+        const position = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
+        const progress = length > 0 ? Math.min(1000, Math.max(0, position / length * 1000)) : 0;
+
+        seek.value = String(progress);
+        seek.style.setProperty('--seek-progress', (progress / 10) + '%');
+        currentTime.textContent = formatTime(position);
+        duration.textContent = formatTime(length);
+      }
+
+      function updateMediaMetadata() {
+        if (!('mediaSession' in navigator) || typeof MediaMetadata === 'undefined') return;
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: tracks[index].title,
+          artist: 'DJ Alex Blond',
+          album: 'Миксы'
+        });
+      }
+
+      function updateMediaPosition(force) {
+        if (!('mediaSession' in navigator) || typeof navigator.mediaSession.setPositionState !== 'function') return;
+        if (!Number.isFinite(audio.duration) || audio.duration <= 0 || !Number.isFinite(audio.currentTime)) return;
+
+        const now = Date.now();
+        if (!force && now - lastPositionUpdate < 1000) return;
+        lastPositionUpdate = now;
+
+        try {
+          navigator.mediaSession.setPositionState({
+            duration: audio.duration,
+            playbackRate: audio.playbackRate || 1,
+            position: Math.min(audio.duration, Math.max(0, audio.currentTime))
+          });
+        } catch (_) {}
+      }
+
+      async function startPlayback() {
+        pendingPlay = true;
+        try {
+          await audio.play();
+        } catch (_) {
+          pendingPlay = false;
+          setPlaying(false);
+        }
+      }
+
+      function loadTrack(nextIndex, shouldPlay) {
+        index = (nextIndex + tracks.length) % tracks.length;
+        pendingPlay = Boolean(shouldPlay);
+
+        audio.src = tracks[index].url;
+        audio.load();
+        title.textContent = tracks[index].title;
+        seek.value = '0';
+        seek.style.setProperty('--seek-progress', '0%');
+        currentTime.textContent = '0:00';
+        duration.textContent = '0:00';
+        updateMediaMetadata();
+
+        if (shouldPlay) {
+          startPlayback();
+        } else {
+          setPlaying(false);
+        }
+      }
+
+      function changeTrack(direction) {
+        const shouldContinue = !audio.paused || pendingPlay;
+        loadTrack(index + direction, shouldContinue);
+      }
+
+      function seekTo(seconds) {
+        if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
+        audio.currentTime = Math.min(audio.duration, Math.max(0, seconds));
+        updateTimeline();
+        updateMediaPosition(true);
+      }
+
+      playButton.addEventListener('click', function () {
+        if (audio.paused) startPlayback();
+        else audio.pause();
+      });
+
+      previousButton.addEventListener('click', function () { changeTrack(-1); });
+      nextButton.addEventListener('click', function () { changeTrack(1); });
+
+      seek.addEventListener('input', function () {
+        if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
+        seekTo(Number(seek.value) / 1000 * audio.duration);
+      });
+
+      audio.addEventListener('play', function () {
+        pendingPlay = false;
+        setPlaying(true);
+        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+        updateMediaPosition(true);
+      });
+
+      audio.addEventListener('pause', function () {
+        if (!pendingPlay) setPlaying(false);
+        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+        updateMediaPosition(true);
+      });
+
+      audio.addEventListener('loadedmetadata', function () {
+        updateTimeline();
+        updateMediaPosition(true);
+      });
+
+      audio.addEventListener('durationchange', updateTimeline);
+      audio.addEventListener('timeupdate', function () {
+        updateTimeline();
+        updateMediaPosition(false);
+      });
+
+      audio.addEventListener('ended', function () {
+        loadTrack(index + 1, true);
+      });
+
+      audio.addEventListener('error', function () {
+        pendingPlay = false;
+        setPlaying(false);
+      });
+
+      if ('mediaSession' in navigator) {
+        const actions = {
+          play: function () { startPlayback(); },
+          pause: function () { audio.pause(); },
+          previoustrack: function () { changeTrack(-1); },
+          nexttrack: function () { changeTrack(1); },
+          seekbackward: function (details) { seekTo(audio.currentTime - (details.seekOffset || 10)); },
+          seekforward: function (details) { seekTo(audio.currentTime + (details.seekOffset || 10)); },
+          seekto: function (details) {
+            if (details.fastSeek && typeof audio.fastSeek === 'function') audio.fastSeek(details.seekTime);
+            else seekTo(details.seekTime);
+          },
+          stop: function () {
+            audio.pause();
+            seekTo(0);
+          }
+        };
+
+        Object.keys(actions).forEach(function (action) {
+          try { navigator.mediaSession.setActionHandler(action, actions[action]); } catch (_) {}
+        });
+      }
+
+      let smoothLevels = new Array(bars.length).fill(.02);
+      function animateVisualizer(time) {
+        const playing = !audio.paused && !audio.ended;
+        for (let i = 0; i < bars.length; i += 1) {
+          const position = i / Math.max(1, bars.length - 1);
+          const waveA = Math.sin(time * .0032 + position * 14.5);
+          const waveB = Math.sin(time * .0051 - position * 23.0 + 1.4);
+          const waveC = Math.sin(time * .0021 + position * 37.0 + .5);
+          const target = playing ? .12 + Math.abs(waveA * .42 + waveB * .25 + waveC * .16) : .02;
+          smoothLevels[i] += (target - smoothLevels[i]) * (target > smoothLevels[i] ? .22 : .10);
+          bars[i].style.transform = 'scaleY(' + Math.min(.95, smoothLevels[i]) + ')';
+        }
+        requestAnimationFrame(animateVisualizer);
+      }
+
+      loadTrack(0, false);
+      requestAnimationFrame(animateVisualizer);
+    })();
+  </script>
+</body>
+</html>
