@@ -1,0 +1,16 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Blond;Alex;;;
+FN:Alex Blond
+ORG:DJ Alex Blond
+TITLE:DJ
+TEL;TYPE=CELL,VOICE:+79673113200
+URL;TYPE=WORK:https://taplink.cc/alexblond
+item1.URL:https://t.me/Alex_Blond7
+item1.X-ABLabel:Telegram
+item2.URL:https://vk.com/dj.alexblond
+item2.X-ABLabel:VK
+item3.URL:https://instagram.com/alex_blond7
+item3.X-ABLabel:Instagram
+NOTE:DJ Alex Blond — music and event services
+END:VCARD
